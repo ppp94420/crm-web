@@ -31,6 +31,7 @@ import ProTable from '@/components/ProTable/index.vue'
 import { DepartmentApi } from '@/api/modules/department'
 import { CirclePlus, EditPen, Delete } from '@element-plus/icons-vue'
 import { useHandleData } from '@/hooks/useHandleData'
+import DepartmentDialog from './components/DepartmentDialog.vue'
 // 获取 ProTable 元素，调用其获取刷新数据方法（还能获取到当前查询参数，方便导出携带参数）
 const proTable = ref()
 

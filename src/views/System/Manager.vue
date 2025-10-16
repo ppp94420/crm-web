@@ -83,13 +83,6 @@ const columns: ColumnProps<SysManager.ResManagerList>[] = [
     fieldNames: { label: 'name', value: 'id' }
   },
   {
-    prop: 'departId',
-    label: '所属部门',
-    enum: departmentStore.departmentList,
-    fieldNames: { label: 'name', value: 'id' },
-    search: { el: 'cascader', span: 2, props: { props: { checkStrictly: true }, filterable: true } }
-  },
-  {
     prop: 'status',
     label: '状态',
     render: (scope) => {
@@ -109,7 +102,19 @@ const columns: ColumnProps<SysManager.ResManagerList>[] = [
     label: '创建时间',
     width: 200
   },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 330 }
+  {
+    prop: 'operation',
+    label: '操作',
+    fixed: 'right',
+    width: 330
+  },
+  {
+    prop: 'departId',
+    label: '所属部门',
+    enum: departmentStore.departmentList,
+    fieldNames: { label: 'name', value: 'id' },
+    search: { el: 'cascader', span: 2, props: { props: { checkStrictly: true }, filterable: true } }
+  }
 ]
 
 // 删除用户信息

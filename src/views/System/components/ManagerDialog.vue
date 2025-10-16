@@ -40,17 +40,17 @@
             <el-radio :label="0" border>停用</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item v-if="dialogProps.title !== '重置'" label="所属部门" prop="departId">
+          <el-cascader
+            v-model="dialogProps.row!.departId"
+            :props="{ value: 'id', label: 'name', emitPath: false, checkStrictly: true }"
+            placeholder="请选择管理员所属部门"
+            :options="departmentList"
+            :show-all-levels="false"
+            filterable
+          />
+        </el-form-item>
       </el-form>
-      <el-form-item v-if="dialogProps.title !== '重置'" label="所属部门" prop="departId">
-        <el-cascader
-          v-model="dialogProps.row!.departId"
-          :props="{ value: 'id', label: 'name', emitPath: false, checkStrictly: true }"
-          placeholder="请选择管理员所属部门"
-          :options="departmentList"
-          :show-all-levels="false"
-          filterable
-        />
-      </el-form-item>
     </div>
     <template #footer>
       <slot name="footer">
