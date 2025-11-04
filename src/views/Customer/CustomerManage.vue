@@ -11,22 +11,15 @@
       :searchCol="{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }"
     >
       <!-- 表格 header 按钮 -->
-      <template #tableHeader="scope">
+      <template #tableHeader="scope" v-if="props.isShowHeader">
         <el-button type="primary" :icon="CirclePlus" v-hasPermi="['sys:customer:add']" @click="openDrawer('新增')">新增客户</el-button>
-        <el-button type="primary" :icon="Download" v-hasPermi="['sys:customer:export']" @click="downloadFile">导出客户</el-button>
-        <el-button
-          type="danger"
-          :icon="Delete"
-          :disabled="!scope.isSelected"
-          v-hasPermi="['sys:customer:remove']"
-          @click="batchDelete(scope.selectedListIds.map((id) => Number(id)))"
-          >批量删除</el-button
-        >
+        <el-button type="primary" :icon="Download" v-hasPermi="['sys:customer:export']" plain @click="downloadFile">导出客户</el-button>
+        <el-button type="danger" :icon="Delete" :disabled="!scope.isSelected" v-hasPermi="['sys:customer:remove']" @click="batchDelete(scope.selectedListIds)">批量删除</el-button>
       </template>
       <!-- 表格操作 -->
       <template #operation="scope">
         <el-button type="primary" link :icon="EditPen" v-hasPermi="['sys:customer:edit']" @click="openDrawer('编辑', scope.row)">编辑</el-button>
-        <el-button type="danger" link :icon="Delete" v-hasPermi="['sys:customer:remove']" @click="deleteCustomer(scope.row)">删除</el-button>
+        <el-button type="danger" link :icon="Delete" v-hasPermi="['sys:customer:remove']" @click="batchDelete([scope.row.id])">删除</el-button>
         <el-button type="warning" link :icon="Share" v-hasPermi="['sys:customer:share']" @click="customerToPublic(scope.row.id)">转入公海</el-button>
       </template>
     </ProTable>
@@ -41,19 +34,32 @@ import ProTable from '@/components/ProTable/index.vue'
 import { CustomerApi } from '@/api/modules/customer'
 import { CustomerLevelList, CustomerSourceList, FollowUpStatusList, GenderList, IsKeyDecisionMakerList } from '@/configs/enum'
 import { CirclePlus, EditPen, Delete, Download, Share } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+// import { ElMessageBox } from 'element-plus'
 import { useDownload } from '@/hooks/useDownload'
 import { useHandleData } from '@/hooks/useHandleData'
 import CustomerDialog from './components/CustomerDialog.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 获取 ProTable 元素，调用其获取刷新数据方法（还能获取到当前查询参数，方便导出携带参数）
 const proTable = ref()
 
+const props = defineProps({
+  isShowHeader: {
+    type: Boolean,
+    default: true
+  }
+})
+
+defineExpose({
+  proTable
+})
 // 如果表格需要初始化请求参数，直接定义传给 ProTable(之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
 const initParam = reactive({ isPublic: 0 })
+const dataSize = ref(0)
 
 // dataCallback 是对于返回的表格数据做处理，如果你后台返回的数据不是 datalist && total 这些字段，那么你可以在这里进行处理成这些字段
 const dataCallback = (data: any) => {
+  dataSize.value = data.list.size
   return {
     list: data.list,
     total: data.total
@@ -142,13 +148,21 @@ const columns: ColumnProps[] = [
     label: '创建时间',
     width: 200
   },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 330 }
+  { prop: 'operation', label: '操作', fixed: 'right', width: 330, isShow: props.isShowHeader }
 ]
+// 导出列表
 const downloadFile = async () => {
-  if (initParam) {
-    proTable.value.searchParam.isPublic = initParam.isPublic
+  if (dataSize.value === 0) {
+    ElMessage({
+      type: 'warning',
+      message: `暂无客户数据需要导出`
+    })
+  } else {
+    if (initParam) {
+      proTable.value.searchParam.isPublic = initParam.isPublic
+    }
+    ElMessageBox.confirm('确认导出客户记录吗?', '温馨提示', { type: 'warning' }).then(() => useDownload(CustomerApi.export, '客户列表', proTable.value?.searchParam))
   }
-  ElMessageBox.confirm('确认导出客户信息吗？', '温馨提示', { type: 'warning' }).then(() => useDownload(CustomerApi.export, '客户信息', proTable?.value.searchParam))
 }
 
 // 打开 drawer(新增、查看、编辑)
@@ -165,21 +179,14 @@ const openDrawer = (title: string, row: Partial<any> = {}) => {
   dialogRef.value.acceptParams(params)
 }
 
-// 删除客户
-const deleteCustomer = async (params: any) => {
-  await useHandleData(CustomerApi.remove, { id: params.id }, `删除【${params.name}】`)
-  proTable.value.getTableList()
-}
-
-//删除选中客户
-const batchDelete = async (ids: number[]) => {
-  await useHandleData(CustomerApi.remove, ids, '删除选中客户')
+// 删除选中客户
+const batchDelete = async (ids: any[]) => {
+  await useHandleData(CustomerApi.remove, ids, '删除所选客户')
   proTable.value.clearSelection()
   proTable.value.getTableList()
 }
-
 // 转入公海
-const customerToPublic = async (id: number) => {
+const customerToPublic = async (id: any) => {
   await useHandleData(CustomerApi.toPublic, { id: id }, '转入公海')
   proTable.value.clearSelection()
   proTable.value.getTableList()

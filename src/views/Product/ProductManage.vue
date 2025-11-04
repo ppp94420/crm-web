@@ -10,7 +10,7 @@
       :searchCol="{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }"
     >
       <!-- 表格 header 按钮 -->
-      <template #tableHeader>
+      <template #tableHeader v-if="props.isShowHeader">
         <el-button type="primary" :icon="CirclePlus" v-hasPermi="['sys:product:add']" @click="openDrawer('新增')">新增商品</el-button>
       </template>
 
@@ -114,4 +114,15 @@ const openStateDialog = (title: string, row: Partial<any> = {}) => {
   }
   stateDialogRef.value.acceptParams(params)
 }
+
+const props = defineProps({
+  isShowHeader: {
+    type: Boolean,
+    default: true
+  }
+})
+
+defineExpose({
+  proTable
+})
 </script>
