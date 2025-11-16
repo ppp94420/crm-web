@@ -23,7 +23,6 @@ import { ref } from 'vue'
 import { Dialog } from '@/components/Dialog'
 import CustomerManage from '@/views/Customer/CustomerManage.vue'
 import { ElMessage } from 'element-plus'
-// import { ElMessage } from 'element-plus'
 
 interface DialogProps {
   title: string
@@ -44,7 +43,7 @@ const dialogProps = ref<DialogProps>({
   title: '',
   row: {},
   labelWidth: 160,
-  fullscreen: false,
+  fullscreen: true,
   maxHeight: '500px'
 })
 
@@ -62,11 +61,12 @@ defineExpose({
 const cancelDialog = () => {
   dialogVisible.value = false
 }
-const emit = defineEmits(['getCustomerData'])
 
+const emit = defineEmits(['getCustomerData'])
 const getCustomerData = () => {
+  console.log(customerManageRef.value.proTable)
   if (customerManageRef.value.proTable.selectedListIds.length > 1) {
-    ElMessage.warning({ message: '只能选择一个客户' })
+    ElMessage.error({ message: `只能选择一个客户` })
   } else if (customerManageRef.value.proTable.selectedListIds.length === 1) {
     const param = {
       id: customerManageRef.value.proTable.selectedListIds[0],

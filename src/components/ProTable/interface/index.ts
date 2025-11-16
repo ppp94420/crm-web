@@ -3,6 +3,7 @@ import { BreakPoint, Responsive } from '@/components/Grid/interface'
 import { TableColumnCtx } from 'element-plus/es/components/table/src/table-column/defaults'
 import { ProTableProps } from '@/components/ProTable/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
+
 export interface EnumProps {
   /** 选项框显示的文字 */
   label?: string

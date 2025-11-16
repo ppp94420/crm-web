@@ -1,9 +1,9 @@
 <template>
   <Dialog :model-value="dialogVisible" :title="dialogProps.title" :max-height="dialogProps.maxHeight" :cancel-dialog="cancelDialog" width="70%" top="8vh">
-    <ProductManage :is-show-header="false" ref="productManageRef" />
+    <ProductManage :is-show-header="false" :status="1" ref="productManageRef" />
     <template #footer>
       <el-button @click="cancelDialog">取消</el-button>
-      <el-button type="primary" @click="getProductData()">确定</el-button>
+      <el-button type="primary" @click="getCustomrData()">确定</el-button>
     </template>
   </Dialog>
 </template>
@@ -16,19 +16,28 @@ import { ElMessage } from 'element-plus'
 
 interface DialogProps {
   title: string
+  isView: boolean
+  fullscreen: boolean
   row: any
+  labelWidth?: number | string
   maxHeight?: number | string
+  api?: (params: any) => Promise<any>
+  getTableList?: () => Promise<any>
 }
 
 const productManageRef = ref()
 const dialogVisible = ref(false)
 const dialogProps = ref<DialogProps>({
-  title: '选择商品',
+  isView: false,
+  title: '',
   row: {},
+  labelWidth: 160,
+  fullscreen: false,
   maxHeight: '500px'
 })
 
 const acceptParams = (params: DialogProps): void => {
+  params.row = { ...dialogProps.value.row, ...params.row }
   dialogProps.value = { ...dialogProps.value, ...params }
   dialogVisible.value = true
 }
@@ -43,17 +52,15 @@ const cancelDialog = () => {
 
 const emit = defineEmits(['getProductData'])
 
-const getProductData = () => {
+const getCustomrData = () => {
   if (productManageRef.value.proTable.selectedListIds.length > 1) {
-    ElMessage.warning({ message: '只能选择一个商品' })
+    ElMessage.error({ message: '只能选择一个商品' })
   } else if (productManageRef.value.proTable.selectedListIds.length === 1) {
-    const selectedProduct = productManageRef.value.proTable.selectedList[0]
+    //const selectedProduct = productManageRef.value.proTable.selectedList[0]
     const param = {
-      pId: selectedProduct.id,
-      pName: selectedProduct.name,
-      price: selectedProduct.price,
-      count: 1,
-      totalPrice: selectedProduct.price
+      id: productManageRef.value.proTable.selectedListIds[0],
+      name: productManageRef.value.proTable.selectedList[0].name,
+      price: productManageRef.value.proTable.selectedList[0].price
     }
     emit('getProductData', param)
     dialogVisible.value = false

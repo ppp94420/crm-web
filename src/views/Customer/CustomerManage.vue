@@ -17,7 +17,7 @@
         <el-button type="danger" :icon="Delete" :disabled="!scope.isSelected" v-hasPermi="['sys:customer:remove']" @click="batchDelete(scope.selectedListIds)">批量删除</el-button>
       </template>
       <!-- 表格操作 -->
-      <template #operation="scope">
+      <template #operation="scope" v-if="props.isShowHeader">
         <el-button type="primary" link :icon="EditPen" v-hasPermi="['sys:customer:edit']" @click="openDrawer('编辑', scope.row)">编辑</el-button>
         <el-button type="danger" link :icon="Delete" v-hasPermi="['sys:customer:remove']" @click="batchDelete([scope.row.id])">删除</el-button>
         <el-button type="warning" link :icon="Share" v-hasPermi="['sys:customer:share']" @click="customerToPublic(scope.row.id)">转入公海</el-button>
@@ -34,11 +34,10 @@ import ProTable from '@/components/ProTable/index.vue'
 import { CustomerApi } from '@/api/modules/customer'
 import { CustomerLevelList, CustomerSourceList, FollowUpStatusList, GenderList, IsKeyDecisionMakerList } from '@/configs/enum'
 import { CirclePlus, EditPen, Delete, Download, Share } from '@element-plus/icons-vue'
-// import { ElMessageBox } from 'element-plus'
-import { useDownload } from '@/hooks/useDownload'
-import { useHandleData } from '@/hooks/useHandleData'
 import CustomerDialog from './components/CustomerDialog.vue'
+import { useHandleData } from '@/hooks/useHandleData'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useDownload } from '@/hooks/useDownload'
 
 // 获取 ProTable 元素，调用其获取刷新数据方法（还能获取到当前查询参数，方便导出携带参数）
 const proTable = ref()
@@ -174,7 +173,7 @@ const openDrawer = (title: string, row: Partial<any> = {}) => {
     isView: title === '查看',
     api: CustomerApi.saveOrEdit,
     getTableList: proTable.value.getTableList,
-    maxHeight: '500px'
+    maxHeight: '450px'
   }
   dialogRef.value.acceptParams(params)
 }
